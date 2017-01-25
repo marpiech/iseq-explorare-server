@@ -88,28 +88,45 @@ public class PhenoMarksParser {
 	        		
 	        		String phrase = "";
 	        		LinkedList <String> words = new LinkedList <String> ();
+	        		
+	        		/*** get list of words ***/
 	        		for (int back = 0; back <= (iter - startTagging); back++)
 	        			words.addFirst(wordList.get(iter - back)
 	        					.replaceAll("\\.|\\,|\\(|\\)", ""));
-	        		
-	        		if (words.size() >= 3) {
-	        			if (words.size() > 3) words.pollFirst(); 
-	        			for (HpoTerm term : terms)
-	        				if (term.isSimilarTo(words.getFirst() + " " + words.getLast()))
-	        					bestMatch = term;
-	        		}
-	        		
+
+	        		/*** search for phrases ***/
 	        		for (int back = 0; back <= (iter - startTagging); back++) {
 	        			phrase = wordList.get(iter - back)
 	        					.replaceAll("\\.|\\,|\\(|\\)", "")
 	        					.concat(" ")
 	        					.concat(phrase)
 	        					.trim();
-	        			
+	        			/*** exact matches ***/
+	        			for (HpoTerm term : terms)
+	        				if (term.isEqualTo(phrase)) {
+	        					bestMatch = term;
+	        				}
+	        			/*** partial matches ***/
+	        			if (bestMatch == null)
 	        			for (HpoTerm term : terms)
 	        				if (term.isSimilarTo(phrase)) {
 	        					bestMatch = term;
 	        				}
+	        		}
+	        		
+	        		/*** find pairs of words that match ***/
+	        		if (bestMatch == null)
+	        		if (words.size() >= 3) {
+	        			if (words.size() > 3) words.pollFirst();
+	        			/*** exact matches ***/
+	        			for (HpoTerm term : terms)
+	        				if (term.isEqualTo(words.getFirst() + " " + words.getLast()))
+	        					bestMatch = term;
+	        			/*** partial matches ***/
+	        			if (bestMatch == null)
+	        			for (HpoTerm term : terms)
+	        				if (term.isSimilarTo(words.getFirst() + " " + words.getLast()))
+	        					bestMatch = term;
 	        		}
 	        		
 	        	}

@@ -5,10 +5,13 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.annotation.JsonView;
 
+import pl.intelliseq.explorare.model.Results;
+import pl.intelliseq.explorare.model.hpo.HpoTree;
 import pl.intelliseq.explorare.model.phenoMarks.PhenoMarks;
 import pl.intelliseq.explorare.model.phenoMarks.PhenoMarksParser;
 import pl.intelliseq.explorare.mvc.response.HelloRestResponse;
@@ -20,6 +23,9 @@ public class ExplorareRestController {
     @Autowired
     PhenoMarksParser phenoMarksParser;
     
+    @Autowired
+    HpoTree hpoTree;
+    
     @CrossOrigin()
     @RequestMapping(path = "/hello", method = RequestMethod.GET, produces = "application/json")
     public HelloRestResponse greeting() { return new HelloRestResponse("explorare service is alive"); }
@@ -30,8 +36,23 @@ public class ExplorareRestController {
     public PhenoMarks postGreeting(@RequestBody Query query) {
     	
         PhenoMarks phenoMarks = phenoMarksParser.tagInput(query.getQuery());
-        System.out.println(phenoMarks.getHpoTerms().size());
         return phenoMarks;
+                            
+    }
+    
+    @CrossOrigin()
+    @JsonView(Views.Rest.class)
+    @RequestMapping(path = "/disease-autocomplete", method = RequestMethod.GET)
+    public Results diseasesAutocomplete(
+    		@RequestParam String firstLetters,
+    		@RequestParam String resultsCount) {
+    	
+    	
+    	
+    	Results results = new Results();
+    	results.addResult("Juzef");
+        //PhenoMarks phenoMarks = phenoMarksParser.tagInput(query.getQuery());
+        return results;//phenoMarks;
                             
     }
 }

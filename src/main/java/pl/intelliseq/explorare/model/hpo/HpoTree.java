@@ -2,6 +2,7 @@ package pl.intelliseq.explorare.model.hpo;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,7 @@ public class HpoTree {
 	
 	HpoTerm root;
 	Map <String, HpoTerm> hpoMap = new TreeMap <String, HpoTerm> ();
+	private Set <String> cachedDiseases;
 	
 	public HpoTree() {
 		root = new HpoTerm("HP:0000001");
@@ -81,6 +83,16 @@ public class HpoTree {
 	public void addDisease(String id, String disease) {
 		HpoTerm term = this.getHpoTermById(id);
 		term.addDisease(disease);
+	}
+	
+	public Set<String> getDiseases() {
+		if (cachedDiseases == null) {
+			Set <String> diseases = new HashSet <String>();
+			for(HpoTerm term : this.getTerms())
+				diseases.addAll(term.getDiseases());
+			this.cachedDiseases = diseases;
+		}
+		return cachedDiseases;
 	}
 	
 	public Map <String, Double> getGenes(Set<HpoTerm> hpoTerms) {

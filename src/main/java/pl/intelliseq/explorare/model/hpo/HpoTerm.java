@@ -91,9 +91,20 @@ public class HpoTerm {
 		return genes;
 	}
 	
+	public Set <String> getDiseases() {
+		return diseases;
+	}
+	
+	public boolean isEqualTo(String phrase) {
+		return isSimilarTo(phrase, 0);
+	}
+	
 	public boolean isSimilarTo(String phrase) {
+		return isSimilarTo(phrase, 2);
+	}
 
-		
+	public boolean isSimilarTo(String phrase, Integer numberOfMismatches) {
+	
 		phrase = phrase.replaceAll("[^a-zA-Z ]", "").toLowerCase();
 		try {
 			if( phrase.equals(name.toLowerCase())) return true;
@@ -102,11 +113,11 @@ public class HpoTerm {
 			System.out.println(this.id);
 			System.out.println(this.name);
 		}
-			
-		if( phrase.startsWith(name.toLowerCase().substring(0, 3))) {
+		
+		if(numberOfMismatches > 0 && phrase.startsWith(name.toLowerCase().substring(0, 3))) {
 			Damerau distanceCalculator = new Damerau();
 			double distance = distanceCalculator.distance(phrase, name.toLowerCase());
-			if (distance < 3) return true;
+			if (distance <= numberOfMismatches) return true;
 		}
 
 		if (synonyms != null && synonyms.size() > 0)

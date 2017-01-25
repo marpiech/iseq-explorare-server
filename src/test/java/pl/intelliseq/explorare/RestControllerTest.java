@@ -45,4 +45,18 @@ public class RestControllerTest {
 		System.out.println(body);
 	}
 
+	@Test
+	public void diseaseAutocomplete() {
+		String url = "/disease-autocomplete?firstLetters=mic";
+		//String firsLetters = "mic";
+		//String requestJson = "{\"query\":\"" + query + "\"}";
+		//HttpHeaders headers = new HttpHeaders();
+		//headers.setContentType(MediaType.APPLICATION_JSON);
+
+		//HttpEntity<String> entity = new HttpEntity<String>(requestJson,headers);
+		//String body = this.restTemplate.postForObject(url, entity, String.class);
+		String body = this.restTemplate.getForObject(url, String.class);
+		System.out.println(body);
+	}
+	
 }
