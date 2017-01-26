@@ -174,6 +174,20 @@ public class HpoTerm {
 		
 	}
 
+	public boolean causeDisease(String diseaseName) {
+		for (String disease : this.diseases)
+			if(disease.equals(diseaseName))
+				return true;
+		return false;
+	}
+
+	public boolean isChildOf(HpoTerm term) {
+		if (parent == null) return false;
+		if (parent.equals(term)) return true;
+		return parent.isChildOf(term);
+		
+	}
+
 
 
 }

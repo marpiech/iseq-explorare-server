@@ -1,5 +1,8 @@
 package pl.intelliseq.explorare.mvc;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -11,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import pl.intelliseq.explorare.model.Results;
+import pl.intelliseq.explorare.model.hpo.HpoTerm;
 import pl.intelliseq.explorare.model.hpo.HpoTree;
 import pl.intelliseq.explorare.model.phenoMarks.PhenoMarks;
 import pl.intelliseq.explorare.model.phenoMarks.PhenoMarksParser;
@@ -42,16 +46,61 @@ public class ExplorareRestController {
     
     @CrossOrigin()
     @JsonView(Views.Rest.class)
+    @RequestMapping(path = "/get-phenotypes-by-disease", method = RequestMethod.GET)
+    public Results getPhenotypesByDisease(@RequestParam String disease) {
+    	
+    	System.out.println(disease);
+    	
+    	Results results = new Results();
+    	
+    	results.addResult(
+    			this.makeSetSpecific(
+    					this.hpoTree.getPhenotypesByDisease(disease)
+    			));
+    	
+        return results;
+                            
+    }
+    
+    private Set<HpoTerm> makeSetSpecific(Set<HpoTerm> hpoTerms) {
+    	Set<HpoTerm> out = new HashSet<HpoTerm>();
+    	for(HpoTerm term : hpoTerms) {
+    		boolean hasChildren = false;
+    		for(HpoTerm childTerm : hpoTerms) {
+    			if(childTerm.isChildOf(term))
+    				hasChildren = true;
+    		}
+    		if(!hasChildren)
+    			out.add(term);
+    	}
+    	return out;
+    }
+    
+    @CrossOrigin()
+    @JsonView(Views.Rest.class)
     @RequestMapping(path = "/disease-autocomplete", method = RequestMethod.GET)
     public Results diseasesAutocomplete(
     		@RequestParam String firstLetters,
-    		@RequestParam String resultsCount) {
-    	
-    	
+    		@RequestParam Integer resultsCount) {
     	
     	Results results = new Results();
-    	results.addResult("Juzef");
-        //PhenoMarks phenoMarks = phenoMarksParser.tagInput(query.getQuery());
+    	
+    	for(String disease: this.hpoTree.getDiseases()) {
+    		if(disease.toLowerCase().startsWith(firstLetters.toLowerCase())) {
+    			results.addResult(disease);
+    			if(results.sizeGreaterOrEqualTo(resultsCount))
+    				return results;
+    		}
+    	}
+    	
+    	for(String disease: this.hpoTree.getDiseases()) {
+    		if(disease.toLowerCase().contains(firstLetters.toLowerCase())) {
+    			results.addResult(disease);
+    			if(results.sizeGreaterOrEqualTo(resultsCount))
+    				return results;
+    		}
+    	}
+    	
         return results;//phenoMarks;
                             
     }

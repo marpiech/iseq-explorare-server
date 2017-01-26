@@ -87,11 +87,13 @@ public class HpoTree {
 	
 	public Set<String> getDiseases() {
 		if (cachedDiseases == null) {
+			System.out.println("NULL");
 			Set <String> diseases = new HashSet <String>();
 			for(HpoTerm term : this.getTerms())
 				diseases.addAll(term.getDiseases());
 			this.cachedDiseases = diseases;
 		}
+		System.out.println(this.cachedDiseases.size());
 		return cachedDiseases;
 	}
 	
@@ -147,6 +149,15 @@ public class HpoTree {
 	                (e1, e2) -> e1, 
 	                LinkedHashMap::new
 	              ));
+	}
+
+	public Set<HpoTerm> getPhenotypesByDisease(String diseaseName) {
+		Set<HpoTerm> hpoTerms = new HashSet<HpoTerm>();
+		for(HpoTerm term : this.getTerms()) {
+			if (term.causeDisease(diseaseName))
+				hpoTerms.add(term);
+		}
+		return hpoTerms;
 	}
 
 

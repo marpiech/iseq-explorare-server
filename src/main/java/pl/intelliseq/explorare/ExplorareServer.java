@@ -5,19 +5,28 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import pl.intelliseq.explorare.model.hpo.HpoOboParser;
+import pl.intelliseq.explorare.model.hpo.HpoTree;
 import pl.intelliseq.explorare.model.phenoMarks.PhenoMarksParser;
 
 @SpringBootApplication
 @Configuration
 public class ExplorareServer {
 
+	HpoTree hpoTree = new HpoOboParser().getHpoTree();
+	
     public static void main(String[] args) {
         SpringApplication.run(ExplorareServer.class, args);
     }
 
     @Bean
     PhenoMarksParser medicMarksParser() {
-        return new PhenoMarksParser();
+        return new PhenoMarksParser(this.hpoTree);
+    }
+    
+    @Bean
+    HpoTree hpoTree() {
+    	return this.hpoTree;
     }
     
 }

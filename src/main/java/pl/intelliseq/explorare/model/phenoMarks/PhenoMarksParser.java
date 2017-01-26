@@ -131,7 +131,7 @@ public class PhenoMarksParser {
 	        		
 	        	}
 	        	if (bestMatch != null) {
-	        		phenoMarks.addMarkedText(("<span class=\"tag tag-info\">" + bestMatch.getId() + "::" + bestMatch.getName() + "</span> "));
+	        		phenoMarks.addMarkedText(("<span class=\"badge badge-info\">" + bestMatch.getId() + "::" + bestMatch.getName() + "</span> "));
 	        		phenoMarks.addHpoTerm(bestMatch);
 	        	}
 
