@@ -104,4 +104,34 @@ public class ExplorareRestController {
         return results;//phenoMarks;
                             
     }
+    
+    @CrossOrigin()
+    @JsonView(Views.Rest.class)
+    @RequestMapping(path = "/phenotype-autocomplete", method = RequestMethod.GET)
+    public Results phenotypeAutocomplete(
+    		@RequestParam String firstLetters,
+    		@RequestParam Integer resultsCount) {
+    	
+    	Results results = new Results();
+    	
+    	for(HpoTerm hpoTerm : this.hpoTree.getTerms()) {
+    		if(hpoTerm.getName().toLowerCase().startsWith(firstLetters.toLowerCase())) {
+    			results.addResult(hpoTerm);
+    			if(results.sizeGreaterOrEqualTo(resultsCount))
+    				return results;
+    		}
+    	}
+    	
+    	for(HpoTerm hpoTerm : this.hpoTree.getTerms()) {
+    		if(hpoTerm.getName().toLowerCase().contains(firstLetters.toLowerCase())) {
+    			results.addResult(hpoTerm);
+    			if(results.sizeGreaterOrEqualTo(resultsCount))
+    				return results;
+    		}
+    	}
+    	
+        return results;
+                            
+    }
+    
 }
