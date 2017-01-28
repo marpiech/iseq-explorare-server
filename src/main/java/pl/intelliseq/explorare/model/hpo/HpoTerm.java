@@ -30,6 +30,15 @@ public class HpoTerm {
 	 		dear future developer sorry I don't remember ***/
 	Double weight;
 	
+	public HpoTerm() {
+		this.id = "";
+		this.name = "";
+		this.synonyms = new ArrayList <String> ();
+		this.children = new ArrayList <HpoTerm> ();
+		this.genes = new HashSet<String> ();
+		this.diseases = new HashSet<String> ();
+	}
+	
 	public HpoTerm(String id) {
 		
 		if (!id.matches("HP:[0-9]{7}"))
@@ -43,6 +52,10 @@ public class HpoTerm {
 
 	}
 
+	public void setId(String id) {
+		this.id = id;
+	}
+	
 	public void setName(String name) {
 		this.name = name;
 	}

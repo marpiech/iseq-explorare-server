@@ -1,9 +1,15 @@
 package pl.intelliseq.explorare.mvc;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpRequest;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,10 +43,37 @@ public class ExplorareRestController {
     @CrossOrigin()
     @JsonView(Views.Rest.class)
     @RequestMapping(path = "/parse-text", method = RequestMethod.POST)
-    public PhenoMarks postGreeting(@RequestBody Query query) {
+    public PhenoMarks parseText(@RequestBody ParseTextQuery query) {
     	
         PhenoMarks phenoMarks = phenoMarksParser.tagInput(query.getQuery());
         return phenoMarks;
+                            
+    }
+
+    static class Term {
+    	String id;
+    	String name;
+    }
+    
+    static class HpoTerms { 
+    	String id;
+    	//String getId() {return this.id;}
+    }
+    
+    @CrossOrigin()
+    //@JsonView(Views.Rest.class)
+    @RequestMapping(path = "/get-genes", method = RequestMethod.POST)
+    public String getGenes(HttpServletRequest request) {//, @RequestBody HpoTerms query) {
+    	System.out.println(request.getAttributeNames().nextElement());
+    	//System.out.println("Method: " + request.getMethod());
+    	//System.out.println("Headers: " + request.getHeaders());
+    	//System.out.println(query.id);
+    	/*Set<HpoTerm> appHpoTerms = new HashSet <HpoTerm> ();
+    	for(HpoTerm queryTerm : query.hpoTerms)
+    		appHpoTerms.add(this.hpoTree.getHpoTermById(queryTerm.getId()));
+    	Map <String, Double> scores = hpoTree.getGenes(appHpoTerms);*/
+        //PhenoMarks phenoMarks = phenoMarksParser.tagInput(query.getQuery());
+        return "hoho";
                             
     }
     

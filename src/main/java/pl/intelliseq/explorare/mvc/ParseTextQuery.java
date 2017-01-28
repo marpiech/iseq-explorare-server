@@ -1,9 +1,9 @@
 package pl.intelliseq.explorare.mvc;
 
-public class Query {
+public class ParseTextQuery {
 	public String query;
 
-	public Query() {
+	public ParseTextQuery() {
 		this.query = "";
 	}
 
