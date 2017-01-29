@@ -26,11 +26,10 @@ public class GetGenesControllerTest {
 
 	@Test
 	public void parseTextTest() {
-		String url = "/get-genes";
+		String url = "/get-diseases";
 		String query = "[{\"id\":\"HP:0000006\",\"name\":\"Autosomal dominant inheritance\"},{\"id\":\"HP:0012188\",\"name\":\"Hyperemesis gravidarum\"},{\"id\":\"HP:0000836\",\"name\":\"Hyperthyroidism\"}]";
 		String requestJson = "{\"hpoTerms\":" + query + "}";
-		requestJson = "{\"hpoTerms\":{\"id\":\"idom\",\"name\":\"nameom\"}}";
-		requestJson = "{\"id\":\"idom\"}";
+
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 

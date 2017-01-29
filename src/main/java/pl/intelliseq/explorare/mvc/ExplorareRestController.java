@@ -2,9 +2,13 @@ package pl.intelliseq.explorare.mvc;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -49,32 +53,39 @@ public class ExplorareRestController {
         return phenoMarks;
                             
     }
-
-    static class Term {
-    	String id;
-    	String name;
-    }
-    
-    static class HpoTerms { 
-    	String id;
-    	//String getId() {return this.id;}
+  
+    static class GetGenesRequest { 
+    	Set<HpoTerm> hpoTerms;
+		public void setHpoTerms(Set<HpoTerm> hpoTerms) {this.hpoTerms = hpoTerms;}
+    	
     }
     
     @CrossOrigin()
-    //@JsonView(Views.Rest.class)
-    @RequestMapping(path = "/get-genes", method = RequestMethod.POST)
-    public String getGenes(HttpServletRequest request) {//, @RequestBody HpoTerms query) {
-    	System.out.println(request.getAttributeNames().nextElement());
-    	//System.out.println("Method: " + request.getMethod());
-    	//System.out.println("Headers: " + request.getHeaders());
-    	//System.out.println(query.id);
-    	/*Set<HpoTerm> appHpoTerms = new HashSet <HpoTerm> ();
-    	for(HpoTerm queryTerm : query.hpoTerms)
-    		appHpoTerms.add(this.hpoTree.getHpoTermById(queryTerm.getId()));
-    	Map <String, Double> scores = hpoTree.getGenes(appHpoTerms);*/
-        //PhenoMarks phenoMarks = phenoMarksParser.tagInput(query.getQuery());
-        return "hoho";
+    @RequestMapping(path = "/get-diseases", method = RequestMethod.POST, consumes = {"application/json"})
+    public Map<String, Double> getGenes(@RequestBody GetGenesRequest request) {
+    	Set<HpoTerm> hpoTerms = this.getParsedHpoTerms(request.hpoTerms);
+    	//System.out.println(hpoTerms.size());
+    	//System.out.println(hpoTerms.iterator().next().getDiseases());
+    	Map<String, Double> result = this.hpoTree.getDiseases(hpoTerms)
+    		.entrySet()
+    		.stream()
+    		.filter(map -> map.getValue() > 0.3d)
+    		.collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue()));
+    	
+    	return result.entrySet().stream()
+        .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+                (e1, e2) -> e1, LinkedHashMap::new));
+    	
+    	//return result;
                             
+    }
+    
+    private Set <HpoTerm> getParsedHpoTerms(Set <HpoTerm> simpleHpoTerms) {
+    	Set <HpoTerm> parsedHpoTerms = new HashSet<HpoTerm>();
+    	for (HpoTerm simpleHpoTerm : simpleHpoTerms)
+    		parsedHpoTerms.add(this.hpoTree.getHpoTermById(simpleHpoTerm.getId()));
+    	return parsedHpoTerms;
     }
     
     @CrossOrigin()
