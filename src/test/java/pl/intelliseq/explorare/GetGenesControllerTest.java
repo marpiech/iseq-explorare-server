@@ -25,7 +25,7 @@ public class GetGenesControllerTest {
 	private TestRestTemplate restTemplate;
 
 	@Test
-	public void parseTextTest() {
+	public void getDiseasesTest() {
 		String url = "/get-diseases";
 		String query = "[{\"id\":\"HP:0000006\",\"name\":\"Autosomal dominant inheritance\"},{\"id\":\"HP:0012188\",\"name\":\"Hyperemesis gravidarum\"},{\"id\":\"HP:0000836\",\"name\":\"Hyperthyroidism\"}]";
 		String requestJson = "{\"hpoTerms\":" + query + "}";
@@ -33,10 +33,15 @@ public class GetGenesControllerTest {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
 
-		//HttpEntity<String> entity = new HttpEntity<String>(query,headers);
-		System.out.println(requestJson);
 		HttpEntity<String> entity = new HttpEntity<String>(requestJson,headers);
 		String body = this.restTemplate.postForObject(url, entity, String.class);
+		assertTrue(body.contains("HYPERTHYROIDISM, FAMILIAL GESTATIONAL"));
+		
+		
+		query = "[{\"id\":\"HP:0000836\",\"name\":\"Hyperthyroidism\"}]";
+		requestJson = "{\"hpoTerms\":" + query + "}";
+		entity = new HttpEntity<String>(requestJson,headers);
+		body = this.restTemplate.postForObject(url, entity, String.class);
 		System.out.println(body);
 	}
 	

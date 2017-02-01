@@ -1,19 +1,14 @@
 package pl.intelliseq.explorare.mvc;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpRequest;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,6 +19,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.annotation.JsonView;
 
 import pl.intelliseq.explorare.model.Results;
+import pl.intelliseq.explorare.model.hpo.DiseaseGeneDictionary;
+import pl.intelliseq.explorare.model.hpo.DiseaseResult;
+import pl.intelliseq.explorare.model.hpo.GeneResult;
 import pl.intelliseq.explorare.model.hpo.HpoTerm;
 import pl.intelliseq.explorare.model.hpo.HpoTree;
 import pl.intelliseq.explorare.model.phenoMarks.PhenoMarks;
@@ -39,6 +37,9 @@ public class ExplorareRestController {
     
     @Autowired
     HpoTree hpoTree;
+    
+    @Autowired
+    DiseaseGeneDictionary diseaseGeneDictionary;
     
     @CrossOrigin()
     @RequestMapping(path = "/hello", method = RequestMethod.GET, produces = "application/json")
@@ -56,28 +57,81 @@ public class ExplorareRestController {
   
     static class GetGenesRequest { 
     	Set<HpoTerm> hpoTerms;
+    	Double threshold = 0.3d;
 		public void setHpoTerms(Set<HpoTerm> hpoTerms) {this.hpoTerms = hpoTerms;}
+		public void setThreshold(Double threshold) {this.threshold = threshold;}
     	
     }
     
     @CrossOrigin()
     @RequestMapping(path = "/get-diseases", method = RequestMethod.POST, consumes = {"application/json"})
-    public Map<String, Double> getGenes(@RequestBody GetGenesRequest request) {
+    public Set<DiseaseResult> getDiseases(@RequestBody GetGenesRequest request) {
     	Set<HpoTerm> hpoTerms = this.getParsedHpoTerms(request.hpoTerms);
-    	//System.out.println(hpoTerms.size());
-    	//System.out.println(hpoTerms.iterator().next().getDiseases());
+    	
+    	//System.out.println("Diseases " + this.hpoTree.getDiseases(hpoTerms).size());
+    	
     	Map<String, Double> result = this.hpoTree.getDiseases(hpoTerms)
     		.entrySet()
     		.stream()
-    		.filter(map -> map.getValue() > 0.3d)
+    		.filter(map -> map.getValue() > request.threshold)
     		.collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue()));
     	
-    	return result.entrySet().stream()
+    	//System.out.println("Result " + result.size());
+    	
+    	// sorting
+    	result = result.entrySet().stream()
         .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
         .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
                 (e1, e2) -> e1, LinkedHashMap::new));
     	
-    	//return result;
+    	//System.out.println("Result " + result.size());
+    	
+    	Set<DiseaseResult> finalResult = new TreeSet<DiseaseResult>();
+    	for(Entry<String, Double> entry : result.entrySet()) {
+    		//System.out.println(entry.getKey());
+    		finalResult.add(
+    				new DiseaseResult(
+    						this.diseaseGeneDictionary
+    						.getDiseaseById(entry.getKey())
+    						.getPrimaryName(),
+    						100 * entry.getValue()
+    						)
+    				);
+    	}
+    	//System.out.println("Final Result " + finalResult.size());
+    	
+    	return finalResult;
+                            
+    }
+    
+    @CrossOrigin()
+    @RequestMapping(path = "/get-genes", method = RequestMethod.POST, consumes = {"application/json"})
+    public Set<GeneResult> getGenes(@RequestBody GetGenesRequest request) {
+    	Set<HpoTerm> hpoTerms = this.getParsedHpoTerms(request.hpoTerms);
+
+    	// getting diseases
+    	Map<String, Double> result = this.hpoTree.getDiseases(hpoTerms)
+    		.entrySet()
+    		.stream()
+    		.filter(map -> map.getValue() > request.threshold)
+    		.collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue()));
+    	
+    	// sorting
+    	result = result.entrySet().stream()
+        .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
+        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+                (e1, e2) -> e1, LinkedHashMap::new));
+    	
+	
+    	Set<GeneResult> finalResult = new TreeSet<GeneResult>();
+    	for(Entry<String, Double> entry : result.entrySet()) {
+    		for (String gene : this.diseaseGeneDictionary.getDiseaseById(entry.getKey()).getGenes())
+    			finalResult.add(new GeneResult(gene, 100 * entry.getValue()));
+    				
+    	}
+    	//System.out.println("Final Result " + finalResult.size());
+    	
+    	return finalResult;
                             
     }
     
@@ -93,13 +147,13 @@ public class ExplorareRestController {
     @RequestMapping(path = "/get-phenotypes-by-disease", method = RequestMethod.GET)
     public Results getPhenotypesByDisease(@RequestParam String disease) {
     	
-    	System.out.println(disease);
+    	String diseaseId = this.diseaseGeneDictionary.getDiseaseByName(disease).getId();
     	
     	Results results = new Results();
     	
     	results.addResult(
     			this.makeSetSpecific(
-    					this.hpoTree.getPhenotypesByDisease(disease)
+    					this.hpoTree.getPhenotypesByDisease(diseaseId)
     			));
     	
         return results;
@@ -129,7 +183,7 @@ public class ExplorareRestController {
     	
     	Results results = new Results();
     	
-    	for(String disease: this.hpoTree.getDiseases()) {
+    	for(String disease: this.diseaseGeneDictionary.getDiseases()) {
     		if(disease.toLowerCase().startsWith(firstLetters.toLowerCase())) {
     			results.addResult(disease);
     			if(results.sizeGreaterOrEqualTo(resultsCount))
@@ -137,7 +191,7 @@ public class ExplorareRestController {
     		}
     	}
     	
-    	for(String disease: this.hpoTree.getDiseases()) {
+    	for(String disease: this.diseaseGeneDictionary.getDiseases()) {
     		if(disease.toLowerCase().contains(firstLetters.toLowerCase())) {
     			results.addResult(disease);
     			if(results.sizeGreaterOrEqualTo(resultsCount))

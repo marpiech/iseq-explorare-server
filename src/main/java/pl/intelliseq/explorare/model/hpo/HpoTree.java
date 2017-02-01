@@ -87,13 +87,13 @@ public class HpoTree {
 	
 	public Set<String> getDiseases() {
 		if (cachedDiseases == null) {
-			System.out.println("NULL");
+			//System.out.println("NULL");
 			Set <String> diseases = new HashSet <String>();
 			for(HpoTerm term : this.getTerms())
 				diseases.addAll(term.getDiseases());
 			this.cachedDiseases = diseases;
 		}
-		System.out.println(this.cachedDiseases.size());
+		//System.out.println(this.cachedDiseases.size());
 		return cachedDiseases;
 	}
 	

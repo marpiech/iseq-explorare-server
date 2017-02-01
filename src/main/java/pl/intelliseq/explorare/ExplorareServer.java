@@ -5,6 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import pl.intelliseq.explorare.model.hpo.DiseaseGeneDictionary;
 import pl.intelliseq.explorare.model.hpo.HpoOboParser;
 import pl.intelliseq.explorare.model.hpo.HpoTree;
 import pl.intelliseq.explorare.model.phenoMarks.PhenoMarksParser;
@@ -27,6 +28,11 @@ public class ExplorareServer {
     @Bean
     HpoTree hpoTree() {
     	return this.hpoTree;
+    }
+    
+    @Bean
+    DiseaseGeneDictionary diseaseGeneDictionary() {
+    	return new DiseaseGeneDictionary();
     }
     
 }

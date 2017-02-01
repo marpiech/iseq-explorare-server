@@ -1,5 +1,6 @@
 package pl.intelliseq.explorare;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -16,20 +17,13 @@ import pl.intelliseq.explorare.model.hpo.HpoTerm;
 import pl.intelliseq.explorare.model.hpo.HpoTree;
 import pl.intelliseq.explorare.model.phenoMarks.PhenoMarksParser;
 
-public class DiseaseTest {
+public class DiseaseDictionaryTest {
 
-	
-	
 	@Test
 	public void parserTest() throws IOException {
-		HpoTree hpoTree = new HpoOboParser().getHpoTree();
-		assertTrue(hpoTree.getTerms().size() > 10000);
-		assertTrue(hpoTree.getHpoTermById("HP:0003805").getGenes().contains("GNE"));
-		
-		long startTime = System.currentTimeMillis();
-		hpoTree.getDiseases();
-		long endTime = System.currentTimeMillis();
-		assertTrue((endTime - startTime) < 500); // time consumed
+	
+		DiseaseGeneDictionary dict = new DiseaseGeneDictionary();
+		assertEquals(dict.getDiseaseById("OMIM:614652").getPrimaryName(), "COENZYME Q10 DEFICIENCY, PRIMARY, 3");
 		
 	}
 

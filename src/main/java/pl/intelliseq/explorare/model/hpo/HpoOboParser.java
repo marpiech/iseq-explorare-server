@@ -111,8 +111,11 @@ class DiseaseCollector {
 	public void parse(String line) {
 		//if (line.startsWith("#")) return;
 		String[] elements = line.split("\t");
-		String diseaseName = elements[2].split(";")[0].replaceAll("#[0-9]+ ", "");
-		if (!diseaseName.equals("MOVED TO"))
+		String diseaseDatabase = elements[0];
+		String diseaseId = elements[1];
+		String diseaseName = diseaseDatabase + ":" + diseaseId;
+		//String diseaseName = elements[2].split(";")[0].replaceAll("#[0-9]+ ", "");
+		//if (!diseaseName.equals("MOVED TO"))
 			hpoTree.addDisease(elements[4], diseaseName);
 	}
 }
