@@ -11,7 +11,9 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'spring-boot'
 
-sourceCompatibility = 1.5
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+ 
 version = '1.0'
 jar {
     manifest {
@@ -65,4 +67,8 @@ uploadArchives {
            dirs 'repos'
        }
     }
+}
+
+springBoot {
+    mainClass = "pl.intelliseq.explorare.ExplorareServer"
 }
