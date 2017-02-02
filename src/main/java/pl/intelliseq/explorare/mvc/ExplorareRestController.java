@@ -24,6 +24,7 @@ import pl.intelliseq.explorare.model.hpo.DiseaseResult;
 import pl.intelliseq.explorare.model.hpo.GeneResult;
 import pl.intelliseq.explorare.model.hpo.HpoTerm;
 import pl.intelliseq.explorare.model.hpo.HpoTree;
+import pl.intelliseq.explorare.model.hpo.PhenotypeResult;
 import pl.intelliseq.explorare.model.phenoMarks.PhenoMarks;
 import pl.intelliseq.explorare.model.phenoMarks.PhenoMarksParser;
 import pl.intelliseq.explorare.mvc.response.HelloRestResponse;
@@ -89,6 +90,7 @@ public class ExplorareRestController {
     	Set<DiseaseResult> finalResult = new TreeSet<DiseaseResult>();
     	for(Entry<String, Double> entry : result.entrySet()) {
     		//System.out.println(entry.getKey());
+    		if (this.diseaseGeneDictionary.getDiseaseById(entry.getKey()) != null)
     		finalResult.add(
     				new DiseaseResult(
     						this.diseaseGeneDictionary
@@ -125,8 +127,9 @@ public class ExplorareRestController {
 	
     	Set<GeneResult> finalResult = new TreeSet<GeneResult>();
     	for(Entry<String, Double> entry : result.entrySet()) {
-    		for (String gene : this.diseaseGeneDictionary.getDiseaseById(entry.getKey()).getGenes())
-    			finalResult.add(new GeneResult(gene, 100 * entry.getValue()));
+    		if (this.diseaseGeneDictionary.getDiseaseById(entry.getKey()) != null)
+    			for (String gene : this.diseaseGeneDictionary.getDiseaseById(entry.getKey()).getGenes())
+    				finalResult.add(new GeneResult(gene, 100 * entry.getValue()));
     				
     	}
     	//System.out.println("Final Result " + finalResult.size());
@@ -202,6 +205,12 @@ public class ExplorareRestController {
         return results;//phenoMarks;
                             
     }
+    
+    @CrossOrigin()
+    @JsonView(Views.Rest.class)
+    @RequestMapping(path = "/get-phenotype-by-id", method = RequestMethod.GET)
+    public PhenotypeResult getPhenotypeById(@RequestParam String phenotypeid) {
+    	return new PhenotypeResult(this.hpoTree.getHpoTermById(phenotypeid)); }
     
     @CrossOrigin()
     @JsonView(Views.Rest.class)

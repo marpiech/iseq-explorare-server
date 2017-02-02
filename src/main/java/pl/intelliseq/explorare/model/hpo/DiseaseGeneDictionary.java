@@ -56,14 +56,27 @@ public class DiseaseGeneDictionary {
 					String diseaseId = diseaseDatabase + ":" + diseaseDatabaseId;
 					Disease disease = new Disease(diseaseId);
 					if(this.add(disease)) {
-						disease.setPrimaryName(
-								elements[2]
-									.split(";")[0]
-									.replaceAll("#[0-9]+ ", "")
-									.replaceAll("\\+[0-9]+ ", "")
-									.replaceAll("%[0-9]+ ", ""));
+						for(String diseaseName : elements[2].split(";")) {
+							diseaseName = diseaseName.replaceAll("^?[0-9]{6} ","").replaceAll("[\\*|#|%|\\+]", "");
+							if(!diseaseName.contains("MOVED TO")) {
+								disease.setPrimaryName(diseaseName);
+								break;
+							}
+						}
 						disease.setSynonyms(
 								new HashSet<String>(Arrays.asList(elements[2].split(";"))));
+						if ((disease.getPrimaryName() == null))
+							this.diseases.remove(diseaseId);
+							//System.out.println(elements[2]);
+						/*disease.setPrimaryName(
+								elements[2]
+									.split(";")[0]
+									.replaceAll(".[0-9]{6} ","")
+									);*/
+									//.replaceAll("#[0-9]+ ", "")
+									//.replaceAll("\\+[0-9]+ ", "")
+									//.replaceAll("%[0-9]+ ", ""));
+						
 					}
 				});
 			

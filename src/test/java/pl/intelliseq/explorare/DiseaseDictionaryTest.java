@@ -20,9 +20,10 @@ import pl.intelliseq.explorare.model.phenoMarks.PhenoMarksParser;
 public class DiseaseDictionaryTest {
 
 	@Test
-	public void parserTest() throws IOException {
+	public void dictionaryTest() throws IOException {
 	
 		DiseaseGeneDictionary dict = new DiseaseGeneDictionary();
+		System.out.println(dict.getDiseaseById("OMIM:614652").getPrimaryName());
 		assertEquals(dict.getDiseaseById("OMIM:614652").getPrimaryName(), "COENZYME Q10 DEFICIENCY, PRIMARY, 3");
 		
 	}
