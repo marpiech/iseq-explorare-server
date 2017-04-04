@@ -35,7 +35,7 @@ public class RestControllerTest {
 	@Test
 	public void parseTextTest() {
 		String url = "/parse-text";
-		String query = "Warburg et al. (1993) used the designation Micro syndrome for an autosomal recessive syndrome comprising microcephaly, microcornea, congenital cataract, mental retardation, optic atrophy, and hypogenitalism. They described an affected brother and sister and their male cousin. The sibs were offspring of a consanguineous Pakistani marriage; the parents of the cousin denied consanguinity. Agenesis of the corpus callosum, prominent root of the nose, large anteverted ears, facial hypertrichosis, small pupils with posterior synechiae, hypotonia, mild to moderate spastic palsy with hip dislocations, and hormonal dysfunction, presumably of hypothalamic origin, were other features. The children were almost blind, whether or not the cataracts had been operated on. The electroretinographic responses indicated dysfunction of both retinal rods and cones, and the visual evoked potentials confirmed optic nerve atrophy. The children were late walkers and were incontinent of urine and stools. In the differential diagnosis, Warburg et al. (1993) considered COFS syndrome (214150), CAMAK/CAMFAK syndromes (212540), Martsolf syndrome (212720), lethal Rutledge syndrome (270400), and lethal Neu-Laxova syndrome (256520).  ";
+		String query = "The patient is 15 y.o boy with no prior somatic problems. The first prodromal symptoms occurred in June, 2015. The patient had transient no provoked pain in lower extremities and in right lower quadrant of the abdomen. It resolved spontaneously. Then in August, 2015 a severe pain occurred in the back and again in the right lower quadrant of the abdomen. This time the patient was transferred to ER. ECHO showed dissection of the aorta type DeBackeyIII/Stanford B. The valves and Ascending aorta appeared normal. CT of the abdomen showed the dissection started 3cm beneath of the origin of the Left subclavian artery and ended 27 cm into the right common iliac artery; infarct of the lower pole of the right kidney; double supply of the right kidney –lower pole from the false channel of the aorta and the upper pole from the true channel of the aorta; left iliac common artery is supplied from the true channel. As so far, the patient is treated symptomatically. In addition, he has been treated for the past 10 years for obsessive-compulsive and ADHD type of behavior. Medications: perazine, fluoxetine, haroperidol (on demand). Physical examination beside macrocephaly, mild scoliosis, flat foot, and abdominal tenderness, was normal.";
 		String requestJson = "{\"query\":\"" + query + "\"}";
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentType(MediaType.APPLICATION_JSON);
@@ -45,18 +45,5 @@ public class RestControllerTest {
 		System.out.println(body);
 	}
 
-	@Test
-	public void diseaseAutocomplete() {
-		String url = "/disease-autocomplete?firstLetters=mic";
-		//String firsLetters = "mic";
-		//String requestJson = "{\"query\":\"" + query + "\"}";
-		//HttpHeaders headers = new HttpHeaders();
-		//headers.setContentType(MediaType.APPLICATION_JSON);
-
-		//HttpEntity<String> entity = new HttpEntity<String>(requestJson,headers);
-		//String body = this.restTemplate.postForObject(url, entity, String.class);
-		String body = this.restTemplate.getForObject(url, String.class);
-		System.out.println(body);
-	}
 	
 }

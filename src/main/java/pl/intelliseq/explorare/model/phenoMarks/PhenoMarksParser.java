@@ -37,7 +37,8 @@ public class PhenoMarksParser {
 	public PhenoMarksParser(HpoTree hpoTree) {
 		POSModel model = new POSModelLoader().load(new File("src/main/resources/dict/en-pos-maxent.bin"));
 	    this.tagger = new POSTaggerME(model);
-	    this.terms = hpoTree.getTerms();
+	    //this.terms = hpoTree.getTerms();
+	    this.terms = hpoTree.getTermsForOboParsing();
 	}
 
 	public PhenoMarks tagInput(String input) {
