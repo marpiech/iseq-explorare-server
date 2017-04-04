@@ -51,7 +51,12 @@ public class PhenoMarks {
 	public void addHpoTerm(HpoTerm hpoTerm) {
 		this.hpoTerms.add(hpoTerm);
 	}
-	
+	// this is workaround of nltk which does no tag last word.
+	// We are adding " end" before processing end remove after 
+	public void removeLastWordFromMarkedText() {
+		markedText.delete(markedText.lastIndexOf("end") - 1, markedText.length());
+		rawText = rawText.substring(0, rawText.lastIndexOf("end") - 1);
+	}
 	
 	
 }

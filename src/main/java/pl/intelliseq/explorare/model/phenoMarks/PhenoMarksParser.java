@@ -21,6 +21,8 @@ import java.util.LinkedList;
 import java.util.List;
 import org.apache.commons.io.IOUtils;
 
+import com.sun.scenario.effect.impl.sw.sse.SSEBlend_SRC_OUTPeer;
+
 public class PhenoMarksParser {
 
 	POSTaggerME tagger;
@@ -29,7 +31,7 @@ public class PhenoMarksParser {
 	public PhenoMarksParser() {
 		POSModel model = new POSModelLoader().load(new File("src/main/resources/dict/en-pos-maxent.bin"));
 	    this.tagger = new POSTaggerME(model);
-	    this.terms = new HpoOboParser().getTerms();
+	    this.terms = new HpoOboParser().getTermsForOboParsing();
 	}
 	
 	public PhenoMarksParser(HpoTree hpoTree) {
@@ -49,6 +51,7 @@ public class PhenoMarksParser {
 	
 	private PhenoMarks tagInputWithCheckedException(String input) throws IOException {
 		
+		
 		/*** define charset ***/
 		Charset charset = Charset.forName("UTF-8");
 		
@@ -57,12 +60,12 @@ public class PhenoMarksParser {
 	            new PlainTextByLineStream(new InputStreamFactory() {
 	                @Override
 	                public InputStream createInputStream() throws IOException {
-	                    return IOUtils.toInputStream(input, charset);
+	                    return IOUtils.toInputStream(input + " end", charset);
 	                }
 	            }, charset);
         
         /*** prepare output ***/
-		PhenoMarks phenoMarks = new PhenoMarks(input);
+		PhenoMarks phenoMarks = new PhenoMarks(input + " end");
 		
 	    /* reading lines from input */
 	    String line;
@@ -73,27 +76,39 @@ public class PhenoMarksParser {
 	        
 	        POSSample sample = new POSSample(whitespaceTokenizerLine, tags);
 	        
-	        List <String> tagsList = Arrays.asList(sample.getTags());
+	        List <String> tagList = Arrays.asList(sample.getTags());
 	        List <String> wordList = Arrays.asList(sample.getSentence());
 	        
 	        int startTagging = 0;
-	        for (int iter = 0; iter < tagsList.size(); iter++) {
+	        for (int iter = 0; iter < tagList.size(); iter++) {
 	        	
-	        	String tag = tagsList.get(iter);
+	        	//System.out.print(wordList.get(iter) + ":");
+	        	//System.out.print(tagList.get(iter) + ": ");
+	        	//System.out.println();
+	        	String tag = tagList.get(iter);
 	        	/* copy text */
 	        	phenoMarks.addMarkedText(wordList.get(iter) + " ");
 	        	
 	        	HpoTerm bestMatch = null;
-	        	if (tag.equals("NN") || tag.equals("NNP") || tag.equals("NNS") || tag.equals("JJ") || tag.equals("VBD")) {
+	        	if (tag.matches("NN|NNP|NNS|JJ|VBD|IN|DT")) {
 	        		
 	        		String phrase = "";
 	        		LinkedList <String> words = new LinkedList <String> ();
 	        		
+	        		/*** phrase maximum lenght is 4 ***/
+	        		int PHRASE_MAXIMUM_LENGTH = 4;
+	        		if(startTagging < iter - PHRASE_MAXIMUM_LENGTH + 1)
+	        			startTagging = iter - PHRASE_MAXIMUM_LENGTH + 1;
+	        		
 	        		/*** get list of words ***/
 	        		for (int back = 0; back <= (iter - startTagging); back++)
 	        			words.addFirst(wordList.get(iter - back)
-	        					.replaceAll("\\.|\\,|\\(|\\)", ""));
+	        					.replaceAll("[^A-Za-z0-9 ]", ""));
+	        					//.replaceAll("\\.|\\,|\\(|\\)", ""));
 
+	        		//for(String word : words) System.out.print(word + ", ");
+	        		//System.out.println();
+	        		
 	        		/*** search for phrases ***/
 	        		for (int back = 0; back <= (iter - startTagging); back++) {
 	        			phrase = wordList.get(iter - back)
@@ -112,12 +127,15 @@ public class PhenoMarksParser {
 	        				if (term.isSimilarTo(phrase)) {
 	        					bestMatch = term;
 	        				}
+	        			/*** check of the ***/
+	        			//System.out.println(phrase);
 	        		}
 	        		
 	        		/*** find pairs of words that match ***/
 	        		if (bestMatch == null)
-	        		if (words.size() >= 3) {
-	        			if (words.size() > 3) words.pollFirst();
+	        		if (words.size() > 2) {
+	        			//System.out.println(words.getLast() + " " + words.getFirst());
+	        			//if (words.size() > 3) words.pollFirst();
 	        			/*** exact matches ***/
 	        			for (HpoTerm term : terms)
 	        				if (term.isEqualTo(words.getFirst() + " " + words.getLast()))
@@ -127,6 +145,16 @@ public class PhenoMarksParser {
 	        			for (HpoTerm term : terms)
 	        				if (term.isSimilarTo(words.getFirst() + " " + words.getLast()))
 	        					bestMatch = term;
+	        			if (bestMatch == null)
+		        			for (HpoTerm term : terms)
+		        				if (term.isSimilarTo(words.getLast() + " " + words.getFirst()))
+		        					bestMatch = term;
+	        			words.pollFirst();
+	        			if (bestMatch == null)
+		        			for (HpoTerm term : terms)
+		        				if (term.isSimilarTo(words.getFirst() + " " + words.getLast()))
+		        					bestMatch = term;
+		        			
 	        		}
 	        		
 	        	}
@@ -135,12 +163,13 @@ public class PhenoMarksParser {
 	        		phenoMarks.addHpoTerm(bestMatch);
 	        	}
 
-	        	if (!(tag.equals("JJ") || tag.equals("NN") )) startTagging = iter + 1;
+	        	if (!(tag.matches("NN|NNP|NNS|JJ|VBD|IN|DT") )) startTagging = iter + 1;
 	        }
 
 	        
 	    }
 	    lineStream.close();
+	    phenoMarks.removeLastWordFromMarkedText();
 	    return phenoMarks;
 	    
 	}

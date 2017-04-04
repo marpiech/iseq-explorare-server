@@ -75,6 +75,14 @@ public class HpoTree {
 		return new ArrayList<HpoTerm>(hpoMap.values());
 	}
 
+	public List<HpoTerm> getTermsForOboParsing() {
+		List <HpoTerm> termsForParsing = new ArrayList<HpoTerm>();
+		for (HpoTerm term : hpoMap.values())
+			if (term.hasParent("HP:0000118"))
+				termsForParsing.add(term);
+		return termsForParsing;
+	}
+	
 	public void addGene(String id, String gene) {
 		HpoTerm term = this.getHpoTermById(id);
 		term.addGene(gene);
@@ -159,6 +167,8 @@ public class HpoTree {
 		}
 		return hpoTerms;
 	}
+
+	
 
 
 	

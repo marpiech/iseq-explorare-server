@@ -113,11 +113,16 @@ public class HpoTerm {
 	}
 	
 	public boolean isSimilarTo(String phrase) {
-		return isSimilarTo(phrase, 2);
+		return isSimilarTo(phrase, 5);
 	}
 
-	public boolean isSimilarTo(String phrase, Integer numberOfMismatches) {
+	public boolean isSimilarTo(String phrase, Integer allowedBasesPerMismatch) {
 	
+		Integer allowedMismatches = 0;
+		if (allowedBasesPerMismatch > 0)
+		allowedMismatches = (int) (((float) phrase.length())/ ((float) allowedBasesPerMismatch));
+		//System.out.println(phrase + allowedMismatches);
+		
 		phrase = phrase.replaceAll("[^a-zA-Z ]", "").toLowerCase();
 		try {
 			if( phrase.equals(name.toLowerCase())) return true;
@@ -127,10 +132,10 @@ public class HpoTerm {
 			System.out.println(this.name);
 		}
 		
-		if(numberOfMismatches > 0 && phrase.startsWith(name.toLowerCase().substring(0, 3))) {
+		if(allowedMismatches > 0 && phrase.startsWith(name.toLowerCase().substring(0, 3))) {
 			Damerau distanceCalculator = new Damerau();
 			double distance = distanceCalculator.distance(phrase, name.toLowerCase());
-			if (distance <= numberOfMismatches) return true;
+			if (distance <= allowedMismatches) return true;
 		}
 
 		if (synonyms != null && synonyms.size() > 0)
@@ -199,6 +204,12 @@ public class HpoTerm {
 		if (parent.equals(term)) return true;
 		return parent.isChildOf(term);
 		
+	}
+
+	public boolean hasParent(String parentId) {
+		if (this.parent == null) return false;
+		if (this.parent.id.equals(parentId)) return true;
+		return this.parent.hasParent(parentId);
 	}
 
 

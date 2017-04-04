@@ -51,6 +51,11 @@ public class HpoOboParser {
 		return hpoTree.getTerms();
 	}
 	
+	public List<HpoTerm> getTermsForOboParsing() {
+		return hpoTree.getTermsForOboParsing();
+		
+	}
+	
 	public HpoTree getHpoTree() {
 		return hpoTree;
 	}
